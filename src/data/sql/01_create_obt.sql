@@ -4,15 +4,99 @@
 -- Como el volumen de datos es ~20GB, NO exportaremos múltiples tablas a Python.
 -- Toda la lógica de "joinear" o agregar debe correr en el clúster de Snowflake.
 
--- Escribir el DDL/DML para crear o reemplazar la tabla materializada 
--- `analytics.obt_trips_model` cruzando `yellow_trips` y `green_trips` si aplica,
--- o aplicando selecciones tempranas.
+CREATE OR REPLACE TABLE analytics.obt_trips_model AS 
+WITH base_trips AS (
+    SELECT 
+        -- Unificación de Fechas
+        COALESCE(tpep_pickup_datetime, lpep_pickup_datetime) AS pickup_datetime,
+        COALESCE(tpep_dropoff_datetime, lpep_dropoff_datetime) AS dropoff_datetime,
+        
+        PULocationID AS pu_location_id,
+        DOLocationID AS do_location_id,
+        
+        -- Decodificación de Vendedores
+        CASE 
+            WHEN VendorID = 1 THEN 'Creative Mobile Technologies'
+            WHEN VendorID = 2 THEN 'VeriFone Inc.'
+            ELSE 'Unknown'
+        END AS vendor_name,
+        
+        CAST(RatecodeID AS INTEGER) AS rate_code_id,
+        CASE 
+            WHEN CAST(RatecodeID AS INTEGER) = 1 THEN 'Standard rate'
+            WHEN CAST(RatecodeID AS INTEGER) = 2 THEN 'JFK'
+            WHEN CAST(RatecodeID AS INTEGER) = 3 THEN 'Newark'
+            WHEN CAST(RatecodeID AS INTEGER) = 4 THEN 'Nassau or Westchester'
+            WHEN CAST(RatecodeID AS INTEGER) = 5 THEN 'Negotiated fare'
+            WHEN CAST(RatecodeID AS INTEGER) = 6 THEN 'Group ride'
+            ELSE 'Unknown'
+        END AS rate_code_desc,
+        
+        CASE 
+            WHEN payment_type = 1 THEN 'Credit card'
+            WHEN payment_type = 2 THEN 'Cash'
+            WHEN payment_type = 3 THEN 'No charge'
+            WHEN payment_type = 4 THEN 'Dispute'
+            WHEN payment_type = 5 THEN 'Unknown'
+            WHEN payment_type = 6 THEN 'Voided trip'
+            ELSE 'Other'
+        END AS payment_type_desc,
+        
+        passenger_count,
+        trip_distance,
+        fare_amount,
+        extra,
+        mta_tax,
+        tip_amount,
+        tolls_amount,
+        improvement_surcharge,
+        total_amount,
+        congestion_surcharge,
+        Airport_fee AS airport_fee,
+        
+        run_id,
+        ingested_at_utc,
+        source_year,
+        source_month,
+        service_type
+    FROM raw.trips_raw
+),
+enriched_trips AS (
+    SELECT
+        b.*,
+        pu.Zone AS pu_zone,
+        pu.Borough AS pu_borough,
+        do.Zone AS do_zone,
+        do.Borough AS do_borough
+    FROM base_trips b
+    LEFT JOIN raw.taxi_zone_lookup pu ON b.pu_location_id = pu.LocationID
+    LEFT JOIN raw.taxi_zone_lookup do ON b.do_location_id = do.LocationID
+)
+SELECT 
+    *,
+    -- Componentes de Fecha/Hora
+    TO_DATE(pickup_datetime) AS pickup_date,
+    DATE_PART('hour', pickup_datetime) AS pickup_hour,
+    TO_DATE(dropoff_datetime) AS dropoff_date,
+    DATE_PART('hour', dropoff_datetime) AS dropoff_hour,
+    DAYOFWEEK(pickup_datetime) AS day_of_week,
+    
+    source_month AS month,
+    source_year AS year,
+    service_type AS source_service,
+    
+    -- Derivadas Numéricas
+    TIMESTAMPDIFF('minute', pickup_datetime, dropoff_datetime) AS trip_duration_min,
+    
+    CASE 
+        WHEN TIMESTAMPDIFF('minute', pickup_datetime, dropoff_datetime) > 0 AND trip_distance > 0 
+        THEN ROUND(trip_distance / (TIMESTAMPDIFF('minute', pickup_datetime, dropoff_datetime) / 60.0), 2)
+        ELSE NULL 
+    END AS avg_speed_mph,
+    
+    CASE 
+        WHEN fare_amount > 0 THEN ROUND((tip_amount / fare_amount) * 100, 2)
+        ELSE NULL 
+    END AS tip_pct
 
--- USE WAREHOUSE COMPUTE_WH;
--- USE DATABASE ANALYTICS;
-
--- CREATE OR REPLACE TABLE analytics.obt_trips_model AS 
--- SELECT 
---     *
--- FROM source_trips
--- WHERE ...
+FROM enriched_trips;

@@ -1,0 +1,91 @@
+### Planteamiento
+### Necesidades
+- Implementar plan del profe
+- Estudiar teoría
+- Documentar cada una de las partes implementadas de código y lo que realizan
+### Objetivo
+*Deberán conectarse a **Snowflake** para consumir la One Big Table (`analytics.obt_trips`), empujando el cómputo primario a la base de datos (Pushdown Computation), realizar el proceso de de exploración en muestras, estructurar el modelado (Out-of-Core Training o por Lotes), empaquetarlo en código productivo modular Python y servirlo mediante una API base con FastAPI.*
+
+## Planeación
+### Propuesta
+- [ ] **Preparación Previa** 
+	- [ ] Datos **crudos** cargados en snowflake
+- [ ] **Modelado de datos**
+	- [ ] *Script para materializar la OBT unificada*
+		- [ ] Combinacion de tablas en OBT sin incluir ingenieria de variables ni nada
+	- [ ] *Script para separar los datos (train_set 2015-2023, val_set 2024, test_set 2025).*
+	- [ ] Documentar
+		- [ ] Columnas de la obt
+		- [ ] Separacion de los datos por rangos 
+		- [ ] Consideraciones adicionales de ser necesario
+- [ ] **Preparación de los datos**
+	- [ ] Estudiar
+		- [ ] Como realizar Data wrangling efectivo
+		- [ ] Como realizar EDA efectivo
+		- [ ] Determinar como las anteriores dan información para saber que limpiar
+	- [ ] **EDA** `01_eda.ipynb`: 
+		- [ ] *Realicen Análisis Exploratorio en un **sample**. Identifiquen outliers y Data Leakage*
+		- [ ] Agregar bloques de código haciendo una exploración especifica
+		- [ ] Identificar mejores modelos a usar según características del Dataset
+			- [ ] Basarse en caracteristicas de modelos de boosting de las presentaciones
+		- [ ] Conclusión después de cada bloque de código (En markdown)
+	- [ ] **Limpieza** **`02_data_cleaning.ipynb`**: 
+		- [ ] *Validen reglas lógicas en pandas y traspasen su código estructural a sus queries SQL en la DB.*
+		- [ ] Implementación de las conclusiones realizadas en el EDA
+	- [ ] **Creación de variables complejas** **`03_feature_engineering.ipynb`**:
+		- [ ] *Creen variables complejas espacio-temporales.*
+		- [ ] Implementación de las conclusiones realizadas en el EDA
+	- [ ] Documentación
+		- [ ] Hallazgos realizados dentro del EDA
+		- [ ] Acciones realizadas durante la limpieza
+		- [ ] Tipos de variables creadas + significancia de usarlas de estas
+- [ ] **Experimentación (Out-of-Core)**
+	- [ ] Estudio
+		- [ ] Como es el procedimiento para entrenar y evaluar modelos 
+			- [ ] proceso enseñado en clase
+			- [ ] out of core
+			- [ ] *Para ensambles y boostings, investiguen sobre la iteración por lotes (batch training, iteradores en XGBoost/LightGBM)*
+			- [ ] ¿k folds necesario?
+			- [ ] Revisar hiperparametros seleccionables de las diapositivas de cada grupo
+		- [ ] Los diferentes algoritmos de boosting.
+	- [ ] Entrenen modelos. 
+		- [ ] **`04_model_experimentation.ipynb`**
+		- [ ] *Para ensambles y boostings, investiguen sobre la iteración por lotes (`batch training`, iteradores en XGBoost/LightGBM) o tomen la mayor submuestra representativa que soporte la memoria de sus máquinas. Seleccionen el mejor según RMSE.*
+	- [ ] Documentación
+		- [ ] Eleccion del mecanismo usado (iteración por lotes o maxima submuestra representativa soportada por la maquina)
+		- [ ] Explicación de modelos elegidos en el entrenamiento y por que
+		- [ ] Explicación de como se realizo
+			- [ ] Como funciona out of core
+		- [ ] Explicación de elección de hiperparametros
+		- [ ] Ilustración de resultados
+		- [ ] Selección del modelo en base a RMSE
+- [ ] **Refactorización de Producción**
+	- [ ] Estudiar
+		- [ ] Como conseguir esto en base a la estructura de archivos que menciona el profesor
+	- [ ] *Migrar el Jupyter a los scripts definitivos en `src/`.*
+		- [ ] *Copiar la lógica de recolección de chunks a src/data/ingestion.py.*
+		- [ ] *Pipeline definitivo en src/features/.*
+		- [ ] *Lógica de partial_fit / batch en src/models/train_model.py.*
+	- [ ] Documentar
+		- [ ] Como se traslado de los notebooks
+			- [ ] Que partes del notebook se pasaron a que sección
+			- [ ] Que adaptaciones - consideraciones se realizaron
+- [ ] **API y Front End**
+	- [ ] Estudiar
+		- [ ] Cómo funciona la integración de la API con el modelo de predicción
+		- [ ] El diseño que tendrá la página web
+	- [ ] *Back-end de ML: Levantar la aplicación web que envuelve al .pkl ejecutando: uvicorn src.api.main:app --reload*
+	- [ ] *Interfaz de Usuario: Desarrollar en app/frontend.py la interfaz gráfica usando Streamlit. El usuario final introducirá datos básicos del viaje y este conectará a la API.*
+	- [ ] *Para correr el servidor web, asegúrese de estar en la raíz de su terminal y ejecutar: streamlit run app/frontend.py*
+	- [ ] Resultado intermedio: Tener funcional el frontend, con predicciones en base a datos mockup
+	- [ ] Documentar
+		- [ ] Como funciona la interacción de la API el modelo 
+		- [ ] Conexión de la API con el frontend
+		- [ ] Opciones que ofrece el frontend
+- [ ] **Readme y reporte de actividades realizadas**
+	- [ ] Crear un readme donde se incluyan 
+		- [ ] los avances realizados por cada miembro
+		- [ ] Información de lo realizado en cada sección
+			- [ ] Procedimiento realizado 
+			- [ ] Principal resultado obtenido.
+		- [ ] Evidencias por cada sección 
