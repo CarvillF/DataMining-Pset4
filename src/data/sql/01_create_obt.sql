@@ -4,17 +4,15 @@
 -- Como el volumen de datos es ~20GB, NO exportaremos múltiples tablas a Python.
 -- Toda la lógica de "joinear" o agregar debe correr en el clúster de Snowflake.
 
-CREATE OR REPLACE TABLE analytics.obt_trips_model AS 
+CREATE OR REPLACE TABLE NYC_TAXI_P5.ANALYTICS.obt_trips_model AS 
 WITH base_trips AS (
     SELECT 
-        -- Unificación de Fechas
         COALESCE(tpep_pickup_datetime, lpep_pickup_datetime) AS pickup_datetime,
         COALESCE(tpep_dropoff_datetime, lpep_dropoff_datetime) AS dropoff_datetime,
         
         PULocationID AS pu_location_id,
         DOLocationID AS do_location_id,
         
-        -- Decodificación de Vendedores
         CASE 
             WHEN VendorID = 1 THEN 'Creative Mobile Technologies'
             WHEN VendorID = 2 THEN 'VeriFone Inc.'
@@ -59,7 +57,7 @@ WITH base_trips AS (
         source_year,
         source_month,
         service_type
-    FROM raw.trips_raw
+    FROM NYC_TAXI_P5.RAW.TRIPS_RAW
 ),
 enriched_trips AS (
     SELECT
@@ -69,34 +67,27 @@ enriched_trips AS (
         do.Zone AS do_zone,
         do.Borough AS do_borough
     FROM base_trips b
-    LEFT JOIN raw.taxi_zone_lookup pu ON b.pu_location_id = pu.LocationID
-    LEFT JOIN raw.taxi_zone_lookup do ON b.do_location_id = do.LocationID
+    LEFT JOIN NYC_TAXI_P5.RAW.TAXI_ZONE_LOOKUP pu ON b.pu_location_id = pu.LocationID
+    LEFT JOIN NYC_TAXI_P5.RAW.TAXI_ZONE_LOOKUP do ON b.do_location_id = do.LocationID
 )
 SELECT 
     *,
-    -- Componentes de Fecha/Hora
     TO_DATE(pickup_datetime) AS pickup_date,
     DATE_PART('hour', pickup_datetime) AS pickup_hour,
     TO_DATE(dropoff_datetime) AS dropoff_date,
     DATE_PART('hour', dropoff_datetime) AS dropoff_hour,
     DAYOFWEEK(pickup_datetime) AS day_of_week,
-    
     source_month AS month,
     source_year AS year,
     service_type AS source_service,
-    
-    -- Derivadas Numéricas
     TIMESTAMPDIFF('minute', pickup_datetime, dropoff_datetime) AS trip_duration_min,
-    
     CASE 
         WHEN TIMESTAMPDIFF('minute', pickup_datetime, dropoff_datetime) > 0 AND trip_distance > 0 
         THEN ROUND(trip_distance / (TIMESTAMPDIFF('minute', pickup_datetime, dropoff_datetime) / 60.0), 2)
         ELSE NULL 
     END AS avg_speed_mph,
-    
     CASE 
         WHEN fare_amount > 0 THEN ROUND((tip_amount / fare_amount) * 100, 2)
         ELSE NULL 
     END AS tip_pct
-
 FROM enriched_trips;
