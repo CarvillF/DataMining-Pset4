@@ -16,8 +16,10 @@ WITH base_trips AS (
         
         -- Decodificación de Vendedores
         CASE 
-            WHEN VendorID = 1 THEN 'Creative Mobile Technologies'
-            WHEN VendorID = 2 THEN 'VeriFone Inc.'
+            WHEN VendorID = 1 THEN 'Creative Mobile Technologies, LLC'
+            WHEN VendorID = 2 THEN 'Curb Mobility, LLC'
+            WHEN VendorID = 6 THEN 'Myle Technologies Inc'
+            WHEN VendorID = 7 THEN 'Helix'
             ELSE 'Unknown'
         END AS vendor_name,
         
@@ -33,7 +35,7 @@ WITH base_trips AS (
         END AS rate_code_desc,
         
         CASE 
-            WHEN payment_type = 1 THEN 'Credit card'
+            WHEN payment_type = 1 THEN 'Flex Fare trip'
             WHEN payment_type = 2 THEN 'Cash'
             WHEN payment_type = 3 THEN 'No charge'
             WHEN payment_type = 4 THEN 'Dispute'
@@ -73,30 +75,16 @@ enriched_trips AS (
     LEFT JOIN raw.taxi_zone_lookup do ON b.do_location_id = do.LocationID
 )
 SELECT 
-    *,
+    * EXCLUDE (source_month, source_year, service_type),
+    source_month AS month,
+    source_year AS year,
+    service_type AS source_service,
+
     -- Componentes de Fecha/Hora
     TO_DATE(pickup_datetime) AS pickup_date,
     DATE_PART('hour', pickup_datetime) AS pickup_hour,
     TO_DATE(dropoff_datetime) AS dropoff_date,
     DATE_PART('hour', dropoff_datetime) AS dropoff_hour,
-    DAYOFWEEK(pickup_datetime) AS day_of_week,
-    
-    source_month AS month,
-    source_year AS year,
-    service_type AS source_service,
-    
-    -- Derivadas Numéricas
-    TIMESTAMPDIFF('minute', pickup_datetime, dropoff_datetime) AS trip_duration_min,
-    
-    CASE 
-        WHEN TIMESTAMPDIFF('minute', pickup_datetime, dropoff_datetime) > 0 AND trip_distance > 0 
-        THEN ROUND(trip_distance / (TIMESTAMPDIFF('minute', pickup_datetime, dropoff_datetime) / 60.0), 2)
-        ELSE NULL 
-    END AS avg_speed_mph,
-    
-    CASE 
-        WHEN fare_amount > 0 THEN ROUND((tip_amount / fare_amount) * 100, 2)
-        ELSE NULL 
-    END AS tip_pct
+    DAYOFWEEK(pickup_datetime) AS day_of_week
 
 FROM enriched_trips;
