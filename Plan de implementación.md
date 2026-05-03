@@ -8,12 +8,12 @@
 
 ## Planeación
 ### Propuesta
-- [ ] **Preparación Previa** 
-	- [ ] Datos **crudos** cargados en snowflake
-- [ ] **Modelado de datos**
-	- [ ] *Script para materializar la OBT unificada*
-		- [ ] Combinacion de tablas en OBT sin incluir ingenieria de variables ni nada
-	- [ ] *Script para separar los datos (train_set 2015-2023, val_set 2024, test_set 2025).*
+- [x] **Preparación Previa** 
+	- [x] Datos **crudos** cargados en snowflake
+- [x] **Modelado de datos**
+	- [x] *Script para materializar la OBT unificada*
+		- [x] Combinacion de tablas en OBT sin incluir ingenieria de variables ni nada
+	- [x] *Script para separar los datos (train_set 2015-2023, val_set 2024, test_set 2025).*
 	- [ ] Documentar
 		- [ ] Columnas de la obt
 		- [ ] Separacion de los datos por rangos 
