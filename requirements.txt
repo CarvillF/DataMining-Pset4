@@ -23,4 +23,5 @@ python-dotenv>=1.0.0
 pytest>=7.3.0
 
 
-pip install snowflake-connector-python pyarrow pytest
+snowflake-connector-python[pandas]
+pyarrow
