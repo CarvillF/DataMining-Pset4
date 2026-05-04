@@ -29,9 +29,9 @@
 		- [x] Identificar mejores modelos a usar según características del Dataset
 			- [x] Basarse en caracteristicas de modelos de boosting de las presentaciones
 		- [x] Conclusión después de cada bloque de código (En markdown)
-	- [ ] **Limpieza** **`02_data_cleaning.ipynb`**: 
-		- [ ] *Validen reglas lógicas en pandas y traspasen su código estructural a sus queries SQL en la DB.*
-		- [ ] Implementación de las conclusiones realizadas en el EDA
+	- [x] **Limpieza** **`02_data_cleaning.ipynb`**: 
+		- [x] *Validen reglas lógicas en pandas y traspasen su código estructural a sus queries SQL en la DB.*
+		- [x] Implementación de las conclusiones realizadas en el EDA
 	- [ ] **Creación de variables complejas** **`03_feature_engineering.ipynb`**:
 		- [ ] *Creen variables complejas espacio-temporales.*
 		- [ ] Implementación de las conclusiones realizadas en el EDA
