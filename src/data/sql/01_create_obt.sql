@@ -4,17 +4,15 @@
 -- Como el volumen de datos es ~20GB, NO exportaremos múltiples tablas a Python.
 -- Toda la lógica de "joinear" o agregar debe correr en el clúster de Snowflake.
 
-CREATE OR REPLACE TABLE analytics.obt_trips_model AS 
+CREATE OR REPLACE TABLE NYC_TAXI_P5.ANALYTICS.obt_trips_model AS 
 WITH base_trips AS (
     SELECT 
-        -- Unificación de Fechas
         COALESCE(tpep_pickup_datetime, lpep_pickup_datetime) AS pickup_datetime,
         COALESCE(tpep_dropoff_datetime, lpep_dropoff_datetime) AS dropoff_datetime,
         
         PULocationID AS pu_location_id,
         DOLocationID AS do_location_id,
         
-        -- Decodificación de Vendedores
         CASE 
             WHEN VendorID = 1 THEN 'Creative Mobile Technologies, LLC'
             WHEN VendorID = 2 THEN 'Curb Mobility, LLC'
@@ -61,7 +59,7 @@ WITH base_trips AS (
         source_year,
         source_month,
         service_type
-    FROM raw.trips_raw
+    FROM NYC_TAXI_P5.RAW.TRIPS_RAW
 ),
 enriched_trips AS (
     SELECT
@@ -71,8 +69,8 @@ enriched_trips AS (
         do.Zone AS do_zone,
         do.Borough AS do_borough
     FROM base_trips b
-    LEFT JOIN raw.taxi_zone_lookup pu ON b.pu_location_id = pu.LocationID
-    LEFT JOIN raw.taxi_zone_lookup do ON b.do_location_id = do.LocationID
+    LEFT JOIN NYC_TAXI_P5.RAW.TAXI_ZONE_LOOKUP pu ON b.pu_location_id = pu.LocationID
+    LEFT JOIN NYC_TAXI_P5.RAW.TAXI_ZONE_LOOKUP do ON b.do_location_id = do.LocationID
 )
 SELECT 
     * EXCLUDE (source_month, source_year, service_type),

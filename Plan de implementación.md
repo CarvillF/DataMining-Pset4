@@ -8,30 +8,30 @@
 
 ## Planeación
 ### Propuesta
-- [ ] **Preparación Previa** 
-	- [ ] Datos **crudos** cargados en snowflake
-- [ ] **Modelado de datos**
-	- [ ] *Script para materializar la OBT unificada*
-		- [ ] Combinacion de tablas en OBT sin incluir ingenieria de variables ni nada
-	- [ ] *Script para separar los datos (train_set 2015-2023, val_set 2024, test_set 2025).*
-	- [ ] Documentar
-		- [ ] Columnas de la obt
-		- [ ] Separacion de los datos por rangos 
-		- [ ] Consideraciones adicionales de ser necesario
+- [x] **Preparación Previa** 
+	- [x] Datos **crudos** cargados en snowflake
+- [x] **Modelado de datos**
+	- [x] *Script para materializar la OBT unificada*
+		- [x] Combinacion de tablas en OBT sin incluir ingenieria de variables ni nada
+	- [x] *Script para separar los datos (train_set 2015-2023, val_set 2024, test_set 2025).*
+	- [x] Documentar
+		- [x] Columnas de la obt
+		- [x] Separacion de los datos por rangos de fechas
+		- [x] Consideraciones adicionales de ser necesario
 - [ ] **Preparación de los datos**
 	- [ ] Estudiar
 		- [ ] Como realizar Data wrangling efectivo
 		- [ ] Como realizar EDA efectivo
 		- [ ] Determinar como las anteriores dan información para saber que limpiar
-	- [ ] **EDA** `01_eda.ipynb`: 
-		- [ ] *Realicen Análisis Exploratorio en un **sample**. Identifiquen outliers y Data Leakage*
-		- [ ] Agregar bloques de código haciendo una exploración especifica
-		- [ ] Identificar mejores modelos a usar según características del Dataset
-			- [ ] Basarse en caracteristicas de modelos de boosting de las presentaciones
-		- [ ] Conclusión después de cada bloque de código (En markdown)
-	- [ ] **Limpieza** **`02_data_cleaning.ipynb`**: 
-		- [ ] *Validen reglas lógicas en pandas y traspasen su código estructural a sus queries SQL en la DB.*
-		- [ ] Implementación de las conclusiones realizadas en el EDA
+	- [x] **EDA** `01_eda.ipynb`: 
+		- [x] *Realicen Análisis Exploratorio en un **sample**. Identifiquen outliers y Data Leakage*
+		- [x] Agregar bloques de código haciendo una exploración especifica
+		- [x] Identificar mejores modelos a usar según características del Dataset
+			- [x] Basarse en caracteristicas de modelos de boosting de las presentaciones
+		- [x] Conclusión después de cada bloque de código (En markdown)
+	- [x] **Limpieza** **`02_data_cleaning.ipynb`**: 
+		- [x] *Validen reglas lógicas en pandas y traspasen su código estructural a sus queries SQL en la DB.*
+		- [x] Implementación de las conclusiones realizadas en el EDA
 	- [ ] **Creación de variables complejas** **`03_feature_engineering.ipynb`**:
 		- [ ] *Creen variables complejas espacio-temporales.*
 		- [ ] Implementación de las conclusiones realizadas en el EDA

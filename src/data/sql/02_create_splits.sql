@@ -8,14 +8,14 @@
 -- * Validación: 2024
 -- * Test: 2025
 
-CREATE OR REPLACE VIEW analytics.train_set AS
-SELECT * FROM analytics.obt_trips_model 
+CREATE OR REPLACE VIEW NYC_TAXI_P5.ANALYTICS.train_set AS
+SELECT * FROM NYC_TAXI_P5.ANALYTICS.cleaned_obt_trips 
 WHERE EXTRACT(YEAR FROM pickup_datetime) BETWEEN 2015 AND 2023;
 
-CREATE OR REPLACE VIEW analytics.val_set AS
-SELECT * FROM analytics.obt_trips_model 
+CREATE OR REPLACE VIEW NYC_TAXI_P5.ANALYTICS.val_set AS
+SELECT * FROM NYC_TAXI_P5.ANALYTICS.cleaned_obt_trips 
 WHERE EXTRACT(YEAR FROM pickup_datetime) = 2024;
 
-CREATE OR REPLACE VIEW analytics.test_set AS
-SELECT * FROM analytics.obt_trips_model 
+CREATE OR REPLACE VIEW NYC_TAXI_P5.ANALYTICS.test_set AS
+SELECT * FROM NYC_TAXI_P5.ANALYTICS.cleaned_obt_trips 
 WHERE EXTRACT(YEAR FROM pickup_datetime) = 2025;
