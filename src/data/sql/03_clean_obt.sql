@@ -16,6 +16,10 @@ SELECT
     COALESCE(rate_code_desc, 'Unknown') AS rate_code_desc,
     COALESCE(payment_type_desc, 'Unknown') AS payment_type_desc,
     COALESCE(passenger_count, 1) AS passenger_count,
+    -- trip_distance es uno de los predictores más fuertes; se debe propagar
+    -- a la tabla limpia (estaba sólo en el WHERE en versiones previas, lo
+    -- cual generaba un dataset sin la feature aguas abajo).
+    trip_distance,
     total_amount,
     month,
     year,
